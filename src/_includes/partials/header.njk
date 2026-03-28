@@ -1,0 +1,19 @@
+<header class="site-header">
+  <div class="container">
+    <a href="/" class="logo" aria-label="Strona główna">
+      <span class="logo__text">{{ site.author }}</span>
+    </a>
+    
+    <nav class="main-nav" aria-label="Główna nawigacja">
+      <button class="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Przełącz menu">
+        <span class="hamburger"></span>
+      </button>
+      
+      <ul id="nav-menu" class="nav-menu" role="menubar">
+        <li role="none"><a href="/" role="menuitem" {% if page.url == "/" %}aria-current="page"{% endif %}>Home</a></li>
+        <li role="none"><a href="/blog/" role="menuitem" {% if page.url == "/blog/" %}aria-current="page"{% endif %}>Blog</a></li>
+        <li role="none"><a href="/o-mnie/" role="menuitem" {% if page.url == "/o-mnie/" %}aria-current="page"{% endif %}>O mnie</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>

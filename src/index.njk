@@ -1,0 +1,46 @@
+---
+layout: layouts/base.njk
+---
+
+<section class="hero">
+  <div class="container">
+    <h1 class="hero__title">Cześć, jestem {{ site.author }}</h1>
+    <p class="hero__subtitle">Tworzę nowoczesne aplikacje i dzielę się wiedzą o technologii, programowaniu oraz moich projektach.</p>
+    <a href="/blog/" class="hero__cta">Przeczytaj blog →</a>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2 class="section__title">Ostatnie wpisy</h2>
+    <div class="posts-grid">
+      {% set posts = collections.posts | limit(4) %}
+      {% for post in posts %}
+      <article class="post-card">
+        <div class="post-card__meta">
+          <time datetime="{{ post.date | isoDate }}">{{ post.date | dateDisplay }}</time>
+          {% if post.data.tags %}
+            {% for tag in post.data.tags %}
+              {% if tag != "posts" %}
+              <span class="post-card__tag">{{ tag }}</span>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        </div>
+        <h3 class="post-card__title">
+          <a href="{{ post.url }}">{{ post.data.title }}</a>
+        </h3>
+        {% if post.data.description %}
+        <p class="post-card__excerpt">{{ post.data.description }}</p>
+        {% endif %}
+        <a href="{{ post.url }}" class="post-card__read-more">Czytaj więcej</a>
+      </article>
+      {% endfor %}
+    </div>
+    {% if collections.posts.length > 4 %}
+    <div class="view-all">
+      <a href="/blog/" class="btn">Zobacz wszystkie wpisy</a>
+    </div>
+    {% endif %}
+  </div>
+</section>

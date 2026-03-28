@@ -1,0 +1,61 @@
+---
+layout: layouts/base.njk
+---
+
+<article class="post">
+  <header class="post-header">
+    <div class="container container--narrow">
+      <div class="post-meta">
+        <time datetime="{{ date | isoDate }}">{{ date | dateDisplay }}</time>
+        {% if tags %}
+        <span class="post-tags">
+          {% for tag in tags %}
+            {% if tag != "posts" %}
+            <span class="tag">{{ tag }}</span>
+            {% endif %}
+          {% endfor %}
+        </span>
+        {% endif %}
+      </div>
+      <h1 class="post-title">{{ title }}</h1>
+      {% if description %}
+      <p class="post-description">{{ description }}</p>
+      {% endif %}
+    </div>
+  </header>
+  
+  <div class="post-content">
+    <div class="container container--narrow">
+      {{ content | safe }}
+    </div>
+  </div>
+  
+  <footer class="post-footer">
+    <div class="container container--narrow">
+      <nav class="post-nav" aria-label="Nawigacja postów">
+        <div class="post-nav__prev">
+          {% if collections.posts %}
+            {% set prevPost = collections.posts | getPreviousCollectionItem %}
+            {% if prevPost %}
+            <a href="{{ prevPost.url }}">
+              <span class="post-nav__label">← Poprzedni post</span>
+              <span class="post-nav__title">{{ prevPost.data.title }}</span>
+            </a>
+            {% endif %}
+          {% endif %}
+        </div>
+        <div class="post-nav__next">
+          {% if collections.posts %}
+            {% set nextPost = collections.posts | getNextCollectionItem %}
+            {% if nextPost %}
+            <a href="{{ nextPost.url }}">
+              <span class="post-nav__label">Następny post →</span>
+              <span class="post-nav__title">{{ nextPost.data.title }}</span>
+            </a>
+            {% endif %}
+          {% endif %}
+        </div>
+      </nav>
+    </div>
+  </footer>
+</article>
