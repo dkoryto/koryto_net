@@ -72,4 +72,48 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  // Scroll to top button
+  const scrollTopBtn = document.querySelector('.scroll-top');
+  
+  if (scrollTopBtn) {
+    const toggleScrollTop = () => {
+      if (window.pageYOffset > 300) {
+        scrollTopBtn.classList.add('is-visible');
+      } else {
+        scrollTopBtn.classList.remove('is-visible');
+      }
+    };
+    
+    window.addEventListener('scroll', toggleScrollTop, { passive: true });
+    
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
+
+  // Theme toggle
+  const themeToggle = document.querySelector('.theme-toggle');
+  const html = document.documentElement;
+  
+  if (themeToggle) {
+    // Check for saved theme preference or prefer-color-scheme
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'light' || (!savedTheme && !prefersDark)) {
+      html.setAttribute('data-theme', 'light');
+    }
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    });
+  }
 });
