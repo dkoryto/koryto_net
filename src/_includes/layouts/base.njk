@@ -13,7 +13,7 @@
   <meta property="og:url" content="{{ site.url }}{{ page.url }}">
   
   <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
+  <link rel="icon" type="image/svg+xml" href="{{ '/assets/images/favicon.svg' | url }}">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,10 +21,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Styles -->
-  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="{{ '/assets/css/main.css' | url }}">
   
   {% if layout == 'post' %}
-  <link rel="stylesheet" href="/assets/css/syntax.css">
+  <link rel="stylesheet" href="{{ '/assets/css/syntax.css' | url }}">
   {% endif %}
 </head>
 <body>
@@ -36,6 +36,6 @@
   
   {% include "partials/footer.njk" %}
   
-  <script src="/assets/js/main.js"></script>
+  <script src="{{ '/assets/js/main.js' | url }}"></script>
 </body>
 </html>

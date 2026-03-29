@@ -6,7 +6,7 @@ layout: layouts/base.njk
   <div class="container">
     <h1 class="hero__title">Cześć, jestem {{ site.author }}</h1>
     <p class="hero__subtitle">Tworzę nowoczesne aplikacje i dzielę się wiedzą o technologii, programowaniu oraz moich projektach.</p>
-    <a href="/blog/" class="hero__cta">Przeczytaj blog →</a>
+    <a href="{{ '/blog/' | url }}" class="hero__cta">Przeczytaj blog →</a>
   </div>
 </section>
 
@@ -28,18 +28,18 @@ layout: layouts/base.njk
           {% endif %}
         </div>
         <h3 class="post-card__title">
-          <a href="{{ post.url }}">{{ post.data.title }}</a>
+          <a href="{{ post.url | url }}">{{ post.data.title }}</a>
         </h3>
         {% if post.data.description %}
         <p class="post-card__excerpt">{{ post.data.description }}</p>
         {% endif %}
-        <a href="{{ post.url }}" class="post-card__read-more">Czytaj więcej</a>
+        <a href="{{ post.url | url }}" class="post-card__read-more">Czytaj więcej</a>
       </article>
       {% endfor %}
     </div>
     {% if collections.posts.length > 4 %}
     <div class="view-all">
-      <a href="/blog/" class="btn">Zobacz wszystkie wpisy</a>
+      <a href="{{ '/blog/' | url }}" class="btn">Zobacz wszystkie wpisy</a>
     </div>
     {% endif %}
   </div>
