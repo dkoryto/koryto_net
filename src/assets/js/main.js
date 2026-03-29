@@ -3,6 +3,21 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Reading progress bar
+  const progressBar = document.querySelector('.reading-progress__bar');
+  
+  if (progressBar) {
+    const updateProgress = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+      progressBar.style.width = progress + '%';
+    };
+    
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    updateProgress(); // Initial call
+  }
+
   // Mobile navigation toggle
   const navToggle = document.querySelector('.nav-toggle');
   const navMenu = document.querySelector('.nav-menu');
