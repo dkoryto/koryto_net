@@ -1,0 +1,24 @@
+---
+permalink: /manifest.json
+layout: null
+---
+{
+  "name": "{{ site.title }}",
+  "short_name": "koryto.net",
+  "description": "{{ site.description }}",
+  "start_url": "{{ '/' | url }}",
+  "display": "standalone",
+  "background_color": "#0f0f11",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "{{ '/assets/images/favicon.svg' | url }}",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "lang": "pl",
+  "categories": ["blog", "technology", "programming"]
+}

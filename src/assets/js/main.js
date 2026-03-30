@@ -116,4 +116,64 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('theme', newTheme);
     });
   }
+
+  // Copy code functionality
+  const codeBlocks = document.querySelectorAll('pre code');
+  
+  codeBlocks.forEach((codeBlock) => {
+    const pre = codeBlock.parentElement;
+    
+    // Create wrapper
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-block-wrapper';
+    pre.parentNode.insertBefore(wrapper, pre);
+    wrapper.appendChild(pre);
+    
+    // Create copy button
+    const copyButton = document.createElement('button');
+    copyButton.className = 'copy-code-button';
+    copyButton.setAttribute('aria-label', 'Kopiuj kod');
+    copyButton.setAttribute('title', 'Kopiuj kod');
+    copyButton.innerHTML = `
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span>Kopiuj</span>
+    `;
+    
+    copyButton.addEventListener('click', async () => {
+      const code = codeBlock.textContent;
+      
+      try {
+        await navigator.clipboard.writeText(code);
+        
+        // Show success state
+        copyButton.classList.add('is-copied');
+        copyButton.innerHTML = `
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Skopiowano!</span>
+        `;
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+          copyButton.classList.remove('is-copied');
+          copyButton.innerHTML = `
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span>Kopiuj</span>
+          `;
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+        copyButton.textContent = 'Błąd!';
+      }
+    });
+    
+    wrapper.appendChild(copyButton);
+  });
 });

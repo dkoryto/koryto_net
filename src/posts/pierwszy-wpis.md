@@ -16,7 +16,7 @@ Postanowiłem stworzyć to miejsce, aby dokumentować moją naukę, dzielić si�
 
 Na tym blogu będę pisał o:
 
-- **Programowaniu** – JavaScript, TypeScript, Node.js, Python
+- **Programowaniu** – JavaScript, TypeScript, Node.js, Pythonaaaaaa
 - **Narzędziach deweloperskich** – Git, Docker, systemy CI/CD
 - **Projektach open source** – moje własne projekty i przydatne biblioteki
 - **Best practices** – wzorce projektowe, testowanie, architektura aplikacji

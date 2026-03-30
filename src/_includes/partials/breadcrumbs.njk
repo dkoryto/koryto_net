@@ -1,0 +1,55 @@
+{%- set breadcrumbs = [] -%}
+
+{%- if page.url != "/" -%}
+  {%- set breadcrumbs = [{url: "/", title: "Home"}] -%}
+  
+  {%- if layout == "post" -%}
+    {%- set breadcrumbs = (breadcrumbs.push({url: "/blog/", title: "Blog"}), breadcrumbs) -%}
+  {%- elif "/tag/" in page.url -%}
+    {%- set breadcrumbs = (breadcrumbs.push({url: "/blog/", title: "Blog"}), breadcrumbs) -%}
+    {%- set tagName = page.url | replace("/tag/", "") | replace("/", "") -%}
+    {%- set breadcrumbs = (breadcrumbs.push({url: page.url, title: "Tag: " + tagName}), breadcrumbs) -%}
+  {%- elif "/archiwum/" in page.url -%}
+    {%- set breadcrumbs = (breadcrumbs.push({url: "/archiwum/", title: "Archiwum"}), breadcrumbs) -%}
+  {%- elif "/edytor/" in page.url -%}
+    {%- set breadcrumbs = (breadcrumbs.push({url: "/edytor/", title: "Edytor"}), breadcrumbs) -%}
+  {%- elif "/blog/" in page.url and page.url != "/blog/" -%}
+    {%- set breadcrumbs = (breadcrumbs.push({url: "/blog/", title: "Blog"}), breadcrumbs) -%}
+    {%- if pagination and pagination.pageNumber > 0 -%}
+      {%- set breadcrumbs = (breadcrumbs.push({url: page.url, title: "Strona " + (pagination.pageNumber + 1)}), breadcrumbs) -%}
+    {%- endif -%}
+  {%- elif "/o-mnie/" in page.url -%}
+    {%- set breadcrumbs = (breadcrumbs.push({url: "/o-mnie/", title: "O mnie"}), breadcrumbs) -%}
+  {%- endif -%}
+  
+  {%- if layout == "post" and title -%}
+    {%- set breadcrumbs = (breadcrumbs.push({url: page.url, title: title}), breadcrumbs) -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- if breadcrumbs.length > 0 -%}
+<nav class="breadcrumbs" aria-label="Nawigacja okruszkowa">
+  <div class="container">
+    <ol class="breadcrumbs__list" itemscope itemtype="https://schema.org/BreadcrumbList">
+      {%- for crumb in breadcrumbs -%}
+      <li class="breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        {%- if loop.last -%}
+        <span class="breadcrumbs__current" aria-current="page" itemprop="name">{{ crumb.title }}</span>
+        <meta itemprop="position" content="{{ loop.index }}">
+        {%- else -%}
+        <a href="{{ crumb.url | url }}" class="breadcrumbs__link" itemprop="item">
+          <span itemprop="name">{{ crumb.title }}</span>
+        </a>
+        <meta itemprop="position" content="{{ loop.index }}">
+        <span class="breadcrumbs__separator" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </span>
+        {%- endif -%}
+      </li>
+      {%- endfor -%}
+    </ol>
+  </div>
+</nav>
+{%- endif -%}

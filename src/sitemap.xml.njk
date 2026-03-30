@@ -1,0 +1,40 @@
+---
+permalink: /sitemap.xml
+layout: null
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {%- for page in collections.all -%}
+  {%- if not page.url.includes('edytor') and not page.url.includes('sitemap') and not page.url.includes('robots') and not page.url.includes('feed') and not page.url.includes('manifest') -%}
+  <url>
+    <loc>{{ site.url }}{{ page.url }}</loc>
+    <lastmod>{{ page.date | isoDate }}</lastmod>
+    {%- if page.url == "/" -%}
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    {%- elif "/blog/" in page.url and page.url != "/blog/" and "/blog/strona/" not in page.url -%}
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    {%- elif page.url == "/blog/" -%}
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    {%- elif "/blog/strona/" in page.url -%}
+    <changefreq>daily</changefreq>
+    <priority>0.3</priority>
+    {%- elif "/tag/" in page.url -%}
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+    {%- elif "/archiwum/" in page.url -%}
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+    {%- elif "/o-mnie/" in page.url -%}
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    {%- else -%}
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    {%- endif -%}
+  </url>
+  {%- endif -%}
+  {%- endfor -%}
+</urlset>

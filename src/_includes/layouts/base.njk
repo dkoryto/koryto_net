@@ -3,28 +3,185 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% if title %}{{ title }} | {% endif %}{{ site.title }}</title>
-  <meta name="description" content="{% if description %}{{ description }}{% else %}{{ site.description }}{% endif %}">
   
-  <!-- Open Graph -->
-  <meta property="og:title" content="{% if title %}{{ title }}{% else %}{{ site.title }}{% endif %}">
-  <meta property="og:description" content="{% if description %}{{ description }}{% else %}{{ site.description }}{% endif %}">
-  <meta property="og:type" content="{% if layout == 'post' %}article{% else %}website{% endif %}">
-  <meta property="og:url" content="{{ site.url }}{{ page.url }}">
+  {%- set pageTitle = title if title else site.title -%}
+  {%- set pageDescription = description if description else site.description -%}
+  {%- set pageDescriptionTruncated = pageDescription | truncate(160) -%}
+  {%- set pageUrl = site.url + page.url -%}
+  {%- set pageImage = image if image else site.url + '/assets/images/og-image.png' -%}
+  {%- set isPost = page.url and '/posts/' in page.url -%}
+  
+  <title>{% if title %}{{ title }} | {% endif %}{{ site.title }}</title>
+  <meta name="description" content="{{ pageDescriptionTruncated }}">
+  <meta name="keywords" content="{% if tags %}{{ tags | join(', ') }}{% else %}blog, technologia, programowanie, web development{% endif %}">
+  <meta name="author" content="{{ site.author }}">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href="{{ pageUrl }}">
+  
+  <!-- Hreflang -->
+  <link rel="alternate" hreflang="pl" href="{{ pageUrl }}">
+  <link rel="alternate" hreflang="x-default" href="{{ pageUrl }}">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:site_name" content="{{ site.title }}">
+  <meta property="og:title" content="{{ pageTitle }}">
+  <meta property="og:description" content="{{ pageDescriptionTruncated }}">
+  <meta property="og:type" content="{% if isPost %}article{% else %}website{% endif %}">
+  <meta property="og:url" content="{{ pageUrl }}">
+  <meta property="og:image" content="{{ pageImage }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="{{ pageTitle }}">
+  <meta property="og:locale" content="pl_PL">
+  {% if isPost %}
+  <meta property="article:author" content="{{ site.author }}">
+  <meta property="article:published_time" content="{{ date | isoDate }}">
+  {% if modified %}
+  <meta property="article:modified_time" content="{{ modified | isoDate }}">
+  {% endif %}
+  {% if tags %}
+  {% for tag in tags %}
+  {% if tag != "posts" %}
+  <meta property="article:tag" content="{{ tag }}">
+  {% endif %}
+  {% endfor %}
+  {% endif %}
+  {% endif %}
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ pageTitle }}">
+  <meta name="twitter:description" content="{{ pageDescriptionTruncated }}">
+  <meta name="twitter:image" content="{{ pageImage }}">
+  <meta name="twitter:image:alt" content="{{ pageTitle }}">
+  {% if site.social.twitter %}
+  <meta name="twitter:creator" content="{{ site.social.twitter }}">
+  {% endif %}
   
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="{{ '/assets/images/favicon.svg' | url }}">
+  <link rel="apple-touch-icon" href="{{ '/assets/images/apple-touch-icon.png' | url }}">
+  <link rel="manifest" href="{{ '/manifest.json' | url }}">
+  <meta name="theme-color" content="#6366f1">
+  
+  <!-- RSS Feed -->
+  <link rel="alternate" type="application/atom+xml" title="{{ site.title }} - RSS Feed" href="{{ '/feed.xml' | url }}">
+  
+  <!-- Preconnect and DNS Prefetch -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Preload critical fonts -->
+  <link rel="preload" href="https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2" as="font" type="font/woff2" crossorigin fetchpriority="high">
   
   <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Preload critical CSS -->
+  <link rel="preload" href="{{ '/assets/css/main.css' | url }}" as="style" fetchpriority="high">
   
   <!-- Styles -->
   <link rel="stylesheet" href="{{ '/assets/css/main.css' | url }}">
   
-  {% if layout == 'post' %}
+  {% if isPost %}
   <link rel="stylesheet" href="{{ '/assets/css/syntax.css' | url }}">
+  {% endif %}
+  
+  <!-- JSON-LD Schema.org -->
+  {% if isPost %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "{{ title }}",
+    "description": "{{ description }}",
+    "image": "{{ pageImage }}",
+    "author": {
+      "@type": "Person",
+      "name": "{{ site.author }}",
+      "url": "{{ site.url }}"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "{{ site.title }}",
+      "url": "{{ site.url }}"
+    },
+    "datePublished": "{{ date | isoDate }}",
+    {% if modified %}"dateModified": "{{ modified | isoDate }}",{% endif %}
+    "url": "{{ pageUrl }}",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "{{ pageUrl }}"
+    },
+    "isPartOf": {
+      "@type": "Blog",
+      "name": "{{ site.title }}",
+      "url": "{{ site.url }}/blog/"
+    }
+    {% if tags %},
+    "keywords": "{% for tag in tags %}{% if tag != 'posts' %}{{ tag }}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %}"
+    {% endif %}
+  }
+  </script>
+  {% else %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "{{ pageTitle }}",
+    "description": "{{ pageDescriptionTruncated }}",
+    "url": "{{ pageUrl }}",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "{{ site.title }}",
+      "url": "{{ site.url }}"
+    }
+  }
+  </script>
+  {% endif %}
+  
+  <!-- Website Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "{{ site.title }}",
+    "description": "{{ site.description }}",
+    "url": "{{ site.url }}",
+    "author": {
+      "@type": "Person",
+      "name": "{{ site.author }}"
+    },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "{{ site.url }}/blog/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+  
+  <!-- Breadcrumbs Schema -->
+  {% if breadcrumbs and breadcrumbs.length > 0 %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+    {% for crumb in breadcrumbs %}
+      {
+        "@type": "ListItem",
+        "position": {{ loop.index }},
+        "name": "{{ crumb.title }}",
+        "item": "{{ site.url }}{{ crumb.url | url }}"
+      }{% if not loop.last %},{% endif %}
+    {% endfor %}
+    ]
+  }
+  </script>
   {% endif %}
 </head>
 <body>
@@ -32,6 +189,7 @@
     <div class="reading-progress__bar"></div>
   </div>
   {% include "partials/header.njk" %}
+  {% include "partials/breadcrumbs.njk" %}
   
   <main id="main-content">
     {{ content | safe }}
@@ -68,6 +226,9 @@
     </span>
   </button>
 
-  <script src="{{ '/assets/js/main.js' | url }}"></script>
+  <script defer src="{{ '/assets/js/main.js' | url }}"></script>
+  
+  <!-- Plausible Analytics - privacy-friendly -->
+  <script defer data-domain="dkoryto.github.io" src="https://plausible.io/js/script.js"></script>
 </body>
 </html>

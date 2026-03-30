@@ -24,8 +24,14 @@ Moja osobista strona domowa z blogiem, zbudowana przy użyciu [11ty (Eleventy)](
 
 ## 📚 Dokumentacja
 
-- **[Jak dodać artykuł](./docs/JAK-DODAC-ARTYKUL.md)** - Kompletny przewodnik po dodawaniu nowych wpisów
-- **[Jak dodać obrazki](./docs/JAK-DODAC-OBRAZKI.md)** - Instrukcja dodawania i optymalizacji obrazków
+### Dla użytkowników
+- **[Dokumentacja projektu](./DOKUMENTACJA.md)** - Kompletna dokumentacja techniczna
+- **[Jak dodać artykuł](./docs/JAK-DODAC-ARTYKUL.md)** - Przewodnik po dodawaniu wpisów
+- **[Jak dodać obrazki](./docs/JAK-DODAC-OBRAZKI.md)** - Instrukcja obsługi obrazków
+- **[Edytor WYSIWYG](./docs/EDYTOR-WYSIWYG.md)** - Dokumentacja edytora
+
+### Dla developerów
+- **[Komponenty i Szablony](./docs/KOMPONENTY-I-SZABLONY.md)** - Dokumentacja techniczna szablonów
 
 ## 🛠️ Lokalny development
 

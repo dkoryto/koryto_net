@@ -1,20 +1,26 @@
 ---
 layout: layouts/base.njk
 title: Blog
+pagination:
+  data: collections.posts
+  size: 6
+  reverse: true
+  alias: posts
+permalink: "{% if pagination.pageNumber > 0 %}/blog/strona/{{ pagination.pageNumber + 1 }}/{% else %}/blog/{% endif %}"
 ---
 
 <section class="section">
-  <div class="container">
+  <div class="container container--content">
     <h1 class="section__title">Wszystkie wpisy</h1>
     <div class="posts-grid">
-      {% for post in collections.posts %}
+      {% for post in posts %}
       <article class="post-card">
         <div class="post-card__meta">
           <time datetime="{{ post.date | isoDate }}">{{ post.date | dateDisplay }}</time>
           {% if post.data.tags %}
             {% for tag in post.data.tags %}
               {% if tag != "posts" %}
-              <span class="post-card__tag">{{ tag }}</span>
+              <a href="{{ '/tag/' | url }}{{ tag | slugify }}/" class="post-card__tag">{{ tag }}</a>
               {% endif %}
             {% endfor %}
           {% endif %}
@@ -25,9 +31,66 @@ title: Blog
         {% if post.data.description %}
         <p class="post-card__excerpt">{{ post.data.description }}</p>
         {% endif %}
-        <a href="{{ post.url | url }}" class="post-card__read-more">Czytaj więcej</a>
+        <div class="post-card__footer">
+          <a href="{{ post.url | url }}" class="post-card__read-more">Czytaj więcej</a>
+          <span class="post-card__reading-time" aria-label="Czas czytania">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            {{ post.templateContent | readingTime }} min
+          </span>
+        </div>
       </article>
       {% endfor %}
     </div>
+    
+    {% if pagination.pageLinks.length > 1 %}
+    <nav class="pagination" aria-label="Paginacja">
+      {% if pagination.previousPageLink %}
+      <a href="{{ pagination.previousPageHref | url }}" class="pagination__prev" aria-label="Poprzednia strona">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Nowsze
+      </a>
+      {% else %}
+      <span class="pagination__prev pagination__prev--disabled">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Nowsze
+      </span>
+      {% endif %}
+      
+      <div class="pagination__pages">
+        {% for pageEntry in pagination.pages %}
+        {% set pageNum = loop.index %}
+        {% set pageHref = pagination.hrefs[loop.index0] %}
+        {% if pageNum == pagination.pageNumber + 1 %}
+        <span class="pagination__page pagination__page--current" aria-current="page">{{ pageNum }}</span>
+        {% else %}
+        <a href="{{ pageHref | url }}" class="pagination__page">{{ pageNum }}</a>
+        {% endif %}
+        {% endfor %}
+      </div>
+      
+      {% if pagination.nextPageLink %}
+      <a href="{{ pagination.nextPageHref | url }}" class="pagination__next" aria-label="Następna strona">
+        Starsze
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </a>
+      {% else %}
+      <span class="pagination__next pagination__next--disabled">
+        Starsze
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </span>
+      {% endif %}
+    </nav>
+    {% endif %}
   </div>
 </section>

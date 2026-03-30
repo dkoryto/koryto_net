@@ -81,3 +81,57 @@
 .hljs-strong {
   font-weight: bold;
 }
+
+/* Light theme adjustments */
+[data-theme="light"] .highlight {
+  background-color: #f4f4f5;
+}
+
+[data-theme="light"] .hljs-keyword,
+[data-theme="light"] .hljs-selector-tag,
+[data-theme="light"] .hljs-literal,
+[data-theme="light"] .hljs-section,
+[data-theme="light"] .hljs-link {
+  color: #a626a4;
+}
+
+[data-theme="light"] .hljs-string,
+[data-theme="light"] .hljs-title,
+[data-theme="light"] .hljs-name,
+[data-theme="light"] .hljs-type,
+[data-theme="light"] .hljs-attribute,
+[data-theme="light"] .hljs-symbol,
+[data-theme="light"] .hljs-bullet,
+[data-theme="light"] .hljs-addition,
+[data-theme="light"] .hljs-variable,
+[data-theme="light"] .hljs-template-tag,
+[data-theme="light"] .hljs-template-variable {
+  color: #50a14f;
+}
+
+[data-theme="light"] .hljs-comment,
+[data-theme="light"] .hljs-quote,
+[data-theme="light"] .hljs-deletion,
+[data-theme="light"] .hljs-meta {
+  color: #a0a1a7;
+}
+
+[data-theme="light"] .hljs-number,
+[data-theme="light"] .hljs-regexp,
+[data-theme="light"] .hljs-literal,
+[data-theme="light"] .hljs-built_in,
+[data-theme="light"] .hljs-builtin-name,
+[data-theme="light"] .hljs-params {
+  color: #986801;
+}
+
+[data-theme="light"] .hljs-class .hljs-title,
+[data-theme="light"] .hljs-function .hljs-title {
+  color: #4078f2;
+}
+
+[data-theme="light"] .hljs-tag,
+[data-theme="light"] .hljs-selector-id,
+[data-theme="light"] .hljs-selector-class {
+  color: #e45649;
+}

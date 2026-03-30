@@ -1,0 +1,60 @@
+---
+layout: layouts/base.njk
+title: Archiwum
+permalink: /archiwum/
+---
+
+{% set postsByYear = collections.posts | groupByYear %}
+
+<section class="section">
+  <div class="container container--content">
+    <h1 class="section__title">Archiwum</h1>
+    
+    <div class="archive">
+      {% set currentYear = null %}
+      {% set currentMonth = null %}
+      
+      {% for post in collections.posts | reverse %}
+        {% set postYear = post.date.getFullYear() %}
+        {% set postMonth = post.date.getMonth() %}
+        {% set monthNames = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"] %}
+        
+        {% if postYear != currentYear %}
+          {% if currentYear != null %}
+            </ul>
+            </div>
+            </div>
+          {% endif %}
+          {% set currentYear = postYear %}
+          {% set currentMonth = null %}
+          <div class="archive__year">
+            <h2 class="archive__year-title">{{ postYear }}</h2>
+            <div class="archive__months">
+        {% endif %}
+        
+        {% if postMonth != currentMonth %}
+          {% if currentMonth != null %}
+            </ul>
+          {% endif %}
+          {% set currentMonth = postMonth %}
+          <div class="archive__month">
+            <h3 class="archive__month-title">{{ monthNames[postMonth] }}</h3>
+            <ul class="archive__list">
+        {% endif %}
+        
+        <li class="archive__item">
+          <time datetime="{{ post.date | isoDate }}" class="archive__date">{{ post.date.getDate() }}</time>
+          <a href="{{ post.url | url }}" class="archive__link">{{ post.data.title }}</a>
+        </li>
+        
+      {% endfor %}
+      
+      {% if currentYear != null %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>

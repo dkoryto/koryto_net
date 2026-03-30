@@ -1,0 +1,45 @@
+---
+pagination:
+  data: collections
+  size: 1
+  alias: tag
+  filter:
+    - posts
+    - all
+permalink: /tag/{{ tag | slugify }}/
+layout: layouts/base.njk
+title: Wpisy oznaczone tagiem "{{ tag }}"
+---
+
+<section class="section">
+  <div class="container container--content">
+    <h1 class="section__title">Wpisy oznaczone tagiem "{{ tag }}"</h1>
+    <div class="posts-grid">
+      {% set tagPosts = collections[tag] | reverse %}
+      {% for post in tagPosts %}
+      <article class="post-card">
+        <div class="post-card__meta">
+          <time datetime="{{ post.date | isoDate }}">{{ post.date | dateDisplay }}</time>
+          {% if post.data.tags %}
+            {% for postTag in post.data.tags %}
+              {% if postTag != "posts" %}
+              <a href="{{ '/tag/' | url }}{{ postTag | slugify }}/" class="post-card__tag">{{ postTag }}</a>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        </div>
+        <h2 class="post-card__title">
+          <a href="{{ post.url | url }}">{{ post.data.title }}</a>
+        </h2>
+        {% if post.data.description %}
+        <p class="post-card__excerpt">{{ post.data.description }}</p>
+        {% endif %}
+        <a href="{{ post.url | url }}" class="post-card__read-more">Czytaj więcej</a>
+      </article>
+      {% endfor %}
+    </div>
+    <div class="view-all">
+      <a href="{{ '/blog/' | url }}" class="btn">← Wszystkie wpisy</a>
+    </div>
+  </div>
+</section>

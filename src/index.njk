@@ -3,7 +3,7 @@ layout: layouts/base.njk
 ---
 
 <section class="hero">
-  <div class="container">
+  <div class="container container--content">
     <h1 class="hero__title">Cześć, jestem {{ site.author }}</h1>
     <p class="hero__subtitle">Tworzę nowoczesne aplikacje i dzielę się wiedzą o technologii, programowaniu oraz moich projektach.</p>
     <a href="{{ '/blog/' | url }}" class="hero__cta">Przeczytaj blog →</a>
@@ -22,7 +22,7 @@ layout: layouts/base.njk
           {% if post.data.tags %}
             {% for tag in post.data.tags %}
               {% if tag != "posts" %}
-              <span class="post-card__tag">{{ tag }}</span>
+              <a href="{{ '/tag/' | url }}{{ tag | slugify }}/" class="post-card__tag">{{ tag }}</a>
               {% endif %}
             {% endfor %}
           {% endif %}

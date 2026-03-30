@@ -23,5 +23,8 @@
   "homepage": "https://github.com/dkoryto/koryto_net#readme",
   "devDependencies": {
     "@11ty/eleventy": "^3.1.5"
+  },
+  "dependencies": {
+    "lunr": "^2.3.9"
   }
 }

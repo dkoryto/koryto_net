@@ -1,0 +1,1613 @@
+---
+layout: layouts/base.njk
+title: Edytor WYSIWYG
+permalink: /edytor/
+---
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.css">
+<script src="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+<section class="section editor-section">
+  <div class="container editor-container">
+    <h1 class="section__title">Edytor WYSIWYG</h1>
+    <p class="editor-intro">Twórz wpisy na blog w wizualny sposób. Możesz dodać obrazki z URL lub przesłać je lokalnie.</p>
+    
+    <form id="post-form" class="editor-form">
+      <div class="editor-field">
+        <label for="post-title" class="editor-label">Tytuł wpisu *</label>
+        <input type="text" id="post-title" name="title" class="editor-input" placeholder="np. Jak stworzyłem tego bloga" required>
+      </div>
+      
+      <div class="editor-row">
+        <div class="editor-field editor-field--half">
+          <label for="post-date" class="editor-label">Data publikacji *</label>
+          <input type="date" id="post-date" name="date" class="editor-input" required>
+        </div>
+        
+        <div class="editor-field editor-field--half">
+          <label for="post-tags" class="editor-label">Tagi (oddzielone przecinkami)</label>
+          <input type="text" id="post-tags" name="tags" class="editor-input" placeholder="np. 11ty, tutorial, webdev">
+        </div>
+      </div>
+      
+      <div class="editor-field">
+        <label for="post-description" class="editor-label">Opis (wyświetlany w listach) *</label>
+        <textarea id="post-description" name="description" class="editor-textarea" rows="2" placeholder="Krótki opis wpisu, max 2-3 zdania..." required></textarea>
+      </div>
+
+      <!-- Featured Image Section with File Upload -->
+      <div class="editor-field">
+        <label class="editor-label">Obrazek wyróżniający (Featured Image)</label>
+        
+        <!-- Upload Area -->
+        <div class="upload-area" id="featured-upload-area">
+          <input type="file" id="featured-file-input" class="file-input" accept="image/*">
+          <div class="upload-content">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <p><strong>Kliknij aby wybrać plik</strong> lub przeciągnij i upuść</p>
+            <span class="upload-hint">PNG, JPG, GIF, SVG (max 5MB)</span>
+          </div>
+        </div>
+        
+        <!-- OR Divider -->
+        <div class="or-divider">
+          <span>LUB</span>
+        </div>
+        
+        <!-- URL Input -->
+        <div class="url-input-section">
+          <input type="text" id="featured-image-url" class="editor-input" placeholder="URL obrazka zewnętrznego, np. https://...">
+        </div>
+        
+        <!-- Alt Text -->
+        <input type="text" id="featured-image-alt" class="editor-input image-alt-input" placeholder="Tekst alternatywny (alt) - ważne dla SEO i dostępności">
+        
+        <!-- Preview -->
+        <div class="image-preview" id="featured-image-preview" style="display: none;">
+          <img src="" alt="Preview" id="featured-image-preview-img">
+          <div class="image-info">
+            <span id="featured-image-filename"></span>
+            <button type="button" class="image-remove-btn" id="remove-featured-image" title="Usuń obrazek">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="editor-field">
+        <label for="post-content" class="editor-label">Treść wpisu *</label>
+        <div class="editor-toolbar-hint">
+          <span>💡 Użyj ikon w pasku narzędzi lub składni Markdown:</span>
+          <code># Nagłówek</code>
+          <code>**pogrubienie**</code>
+          <code>*kursywa*</code>
+          <code>[link](url)</code>
+          <code>![obraz](url)</code>
+          <code>```kod```</code>
+        </div>
+        <textarea id="post-content" name="content" class="editor-textarea editor-textarea--large" placeholder="Treść wpisu..." required></textarea>
+      </div>
+
+      <!-- Image Upload Panel for Content -->
+      <div class="image-upload-panel">
+        <h3 class="image-upload-title">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+          Dodaj obrazek do treści
+        </h3>
+        
+        <div class="image-upload-tabs">
+          <button type="button" class="tab-btn active" data-tab="upload-local">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            Z komputera
+          </button>
+          <button type="button" class="tab-btn" data-tab="upload-url">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+            Z URL
+          </button>
+        </div>
+        
+        <!-- Local Upload Tab -->
+        <div class="tab-content active" id="tab-upload-local">
+          <div class="upload-area upload-area--small" id="content-upload-area">
+            <input type="file" id="content-file-input" class="file-input" accept="image/*" multiple>
+            <div class="upload-content">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              <p><strong>Wybierz obrazki</strong> lub przeciągnij tutaj</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- URL Tab -->
+        <div class="tab-content" id="tab-upload-url">
+          <div class="image-insert-grid">
+            <div class="image-insert-field">
+              <label for="insert-image-url">URL obrazka *</label>
+              <input type="text" id="insert-image-url" class="editor-input" placeholder="https://example.com/obrazek.jpg">
+            </div>
+            <div class="image-insert-field">
+              <label for="insert-image-alt">Tekst alternatywny (alt) *</label>
+              <input type="text" id="insert-image-alt" class="editor-input" placeholder="Opis obrazka dla SEO">
+            </div>
+            <div class="image-insert-field">
+              <label for="insert-image-title">Tytuł (title)</label>
+              <input type="text" id="insert-image-title" class="editor-input" placeholder="Tekst po najechaniu">
+            </div>
+            <div class="image-insert-field image-insert-field--small">
+              <label for="insert-image-width">Szerokość (px)</label>
+              <input type="number" id="insert-image-width" class="editor-input" placeholder="np. 800">
+            </div>
+            <div class="image-insert-field image-insert-field--small">
+              <label for="insert-image-align">Wyrównanie</label>
+              <select id="insert-image-align" class="editor-input">
+                <option value="">Domyślnie</option>
+                <option value="left">Do lewej</option>
+                <option value="center">Wyśrodkowane</option>
+                <option value="right">Do prawej</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Uploaded Images List -->
+        <div class="uploaded-images-list" id="uploaded-images-list" style="display: none;">
+          <h4>Przesłane obrazki:</h4>
+          <div class="images-grid" id="images-grid"></div>
+        </div>
+        
+        <button type="button" id="insert-image-btn" class="btn btn--secondary btn--small">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Wstaw obrazek do treści
+        </button>
+      </div>
+      
+      <div class="editor-preview-toggle">
+        <button type="button" id="toggle-preview" class="btn btn--secondary">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          Podgląd
+        </button>
+      </div>
+      
+      <div id="preview-section" class="editor-preview" style="display: none;">
+        <h3 class="editor-preview__title">Podgląd:</h3>
+        <div id="preview-content" class="editor-preview__content post-content"></div>
+      </div>
+      
+      <div class="editor-actions">
+        <button type="button" id="generate-btn" class="btn btn--primary">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Pobierz plik .md
+        </button>
+        <button type="button" id="download-zip-btn" class="btn btn--secondary">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+          </svg>
+          Pobierz ZIP (.md + obrazki)
+        </button>
+        <button type="button" id="load-md-btn" class="btn btn--secondary">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="12" y1="18" x2="12" y2="12"></line>
+            <line x1="9" y1="15" x2="15" y2="15"></line>
+          </svg>
+          Wczytaj .md
+        </button>
+        <input type="file" id="load-md-input" accept=".md,.markdown" style="display: none;">
+        <button type="button" id="copy-btn" class="btn btn--secondary">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          Kopiuj do schowka
+        </button>
+        <button type="reset" class="btn btn--ghost">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          Wyczyść
+        </button>
+      </div>
+      
+      <div id="output-section" class="editor-output" style="display: none;">
+        <h3 class="editor-output__title">Wygenerowany Markdown:</h3>
+        <pre id="output-content" class="editor-output__code"></pre>
+      </div>
+      
+      <!-- Instructions Panel -->
+      <div class="instructions-panel" id="instructions-panel" style="display: none;">
+        <h3 class="instructions-title">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Instrukcja instalacji
+        </h3>
+        <div class="instructions-content">
+          <p>Aby dodać wpis do bloga:</p>
+          <ol>
+            <li>Pobierz plik ZIP (zawiera wpis + obrazki)</li>
+            <li>Wypakuj zawartość do folderu projektu:</li>
+            <ul>
+              <li>Plik <code>.md</code> → <code>src/posts/</code></li>
+              <li>Obrazki → <code>src/assets/images/</code></li>
+            </ul>
+            <li>Uruchom <code>npm run build</code></li>
+            <li>Wgraj zmiany na GitHub</li>
+          </ol>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style>
+.editor-section {
+  padding: var(--space-xl) 0;
+}
+
+.editor-container {
+  max-width: 900px;
+}
+
+.editor-intro {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-lg);
+  font-size: 1.125rem;
+}
+
+.editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.editor-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.editor-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+@media (max-width: 600px) {
+  .editor-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.editor-label {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 0.9375rem;
+}
+
+.editor-input,
+.editor-textarea,
+.editor-select {
+  padding: 0.75rem 1rem;
+  background-color: var(--color-surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 1rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.editor-input:focus,
+.editor-textarea:focus,
+.editor-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.editor-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.editor-textarea--large {
+  min-height: 400px;
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.editor-hint {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Upload Area */
+.upload-area {
+  position: relative;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius);
+  padding: var(--space-xl);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background-color: var(--color-surface);
+}
+
+.upload-area:hover,
+.upload-area.drag-over {
+  border-color: var(--color-primary);
+  background-color: rgba(99, 102, 241, 0.05);
+}
+
+.upload-area--small {
+  padding: var(--space-md);
+}
+
+.file-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-content {
+  pointer-events: none;
+}
+
+.upload-content svg {
+  margin-bottom: var(--space-sm);
+  color: var(--color-text-muted);
+}
+
+.upload-content p {
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+
+.upload-hint {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+/* OR Divider */
+.or-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: var(--space-sm) 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.or-divider::before,
+.or-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.or-divider span {
+  padding: 0 var(--space-sm);
+}
+
+/* URL Input Section */
+.url-input-section {
+  margin-bottom: var(--space-sm);
+}
+
+.image-alt-input {
+  margin-top: var(--space-sm);
+}
+
+/* Image Preview */
+.image-preview {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  max-width: 300px;
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  border: 2px solid var(--color-primary);
+  margin-top: var(--space-sm);
+}
+
+.image-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-height: 200px;
+  object-fit: cover;
+}
+
+.image-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--color-surface-elevated);
+  font-size: 0.8125rem;
+}
+
+.image-info span {
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.image-remove-btn {
+  width: 28px;
+  height: 28px;
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+}
+
+.image-remove-btn:hover {
+  background-color: #ef4444;
+  color: white;
+}
+
+/* Image Upload Panel */
+.image-upload-panel {
+  background-color: var(--color-surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius);
+  padding: var(--space-md);
+  margin: var(--space-sm) 0;
+}
+
+.image-upload-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Tabs */
+.image-upload-tabs {
+  display: flex;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: var(--space-xs);
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+  cursor: pointer;
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.tab-btn:hover {
+  color: var(--color-text);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+  color: var(--color-primary-light);
+  background-color: rgba(99, 102, 241, 0.1);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Image Insert Grid */
+.image-insert-grid {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.5fr 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+@media (max-width: 900px) {
+  .image-insert-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .image-insert-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.image-insert-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.image-insert-field label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.image-insert-field--small {
+  min-width: 100px;
+}
+
+/* Uploaded Images List */
+.uploaded-images-list {
+  margin: var(--space-md) 0;
+  padding: var(--space-md);
+  background-color: var(--color-bg);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.uploaded-images-list h4 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+}
+
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--space-sm);
+}
+
+.uploaded-image-item {
+  position: relative;
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.uploaded-image-item:hover,
+.uploaded-image-item.selected {
+  border-color: var(--color-primary);
+}
+
+.uploaded-image-item img {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  display: block;
+}
+
+.uploaded-image-item .image-name {
+  padding: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  background-color: var(--color-surface);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uploaded-image-item .image-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.uploaded-image-item:hover .image-remove {
+  opacity: 1;
+}
+
+/* Toolbar Hint */
+.editor-toolbar-hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.editor-toolbar-hint code {
+  background-color: var(--color-surface-elevated);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+
+/* Preview Section */
+.editor-preview-toggle {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-sm) 0;
+}
+
+.editor-preview {
+  background-color: var(--color-surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius);
+  padding: var(--space-lg);
+  margin-top: var(--space-sm);
+}
+
+.editor-preview__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  color: var(--color-text);
+}
+
+.editor-preview__content {
+  background-color: var(--color-bg);
+  padding: var(--space-md);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Actions */
+.editor-actions {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  justify-content: center;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-surface-elevated);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: var(--border-radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn svg {
+  flex-shrink: 0;
+}
+
+.btn--primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: white;
+}
+
+.btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.5);
+  color: white;
+}
+
+.btn--secondary {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn--secondary:hover {
+  background-color: var(--color-surface-elevated);
+  border-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+.btn--ghost {
+  background-color: transparent;
+  color: var(--color-text-muted);
+}
+
+.btn--ghost:hover {
+  color: var(--color-text);
+  background-color: var(--color-surface);
+}
+
+.btn--small {
+  padding: 0.625rem 1rem;
+  font-size: 0.9375rem;
+}
+
+.btn--highlight {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+}
+
+/* Save Success Message */
+.save-success-message {
+  background-color: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--border-radius-sm);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.save-success-message code {
+  background-color: var(--color-surface);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+
+/* Output Section */
+.editor-output {
+  margin-top: var(--space-lg);
+  background-color: var(--color-surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius);
+  padding: var(--space-lg);
+}
+
+.editor-output__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  color: var(--color-text);
+}
+
+.editor-output__code {
+  background-color: var(--color-bg);
+  padding: var(--space-md);
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--color-text);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Instructions Panel */
+.instructions-panel {
+  margin-top: var(--space-lg);
+  background-color: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: var(--border-radius);
+  padding: var(--space-lg);
+}
+
+.instructions-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.instructions-content {
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.instructions-content ol {
+  margin-left: var(--space-md);
+  margin-top: var(--space-sm);
+}
+
+.instructions-content ul {
+  margin-left: var(--space-lg);
+  margin-top: var(--space-xs);
+}
+
+.instructions-content code {
+  background-color: var(--color-surface);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+
+/* EasyMDE Customization */
+.EasyMDEContainer {
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+}
+
+.EasyMDEContainer .CodeMirror {
+  background-color: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.9375rem !important;
+  min-height: 400px !important;
+}
+
+.EasyMDEContainer .editor-toolbar {
+  background-color: var(--color-surface-elevated) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.EasyMDEContainer .editor-toolbar button {
+  color: var(--color-text) !important;
+  border: none !important;
+}
+
+.EasyMDEContainer .editor-toolbar button:hover {
+  background-color: var(--color-primary) !important;
+  color: white !important;
+}
+
+.EasyMDEContainer .editor-preview {
+  background-color: var(--color-bg) !important;
+}
+
+/* Success button state */
+.btn.is-success {
+  background-color: #22c55e !important;
+  border-color: #22c55e !important;
+  color: white !important;
+}
+
+/* Light theme adjustments */
+[data-theme="light"] .editor-input,
+[data-theme="light"] .editor-textarea,
+[data-theme="light"] .editor-select {
+  background-color: white;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .editor-input:focus,
+[data-theme="light"] .editor-textarea:focus,
+[data-theme="light"] .editor-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+[data-theme="light"] .upload-area {
+  background-color: #f8f9fa;
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .upload-area:hover,
+[data-theme="light"] .upload-area.drag-over {
+  background-color: rgba(99, 102, 241, 0.05);
+  border-color: var(--color-primary);
+}
+
+[data-theme="light"] .or-divider::before,
+[data-theme="light"] .or-divider::after {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .editor-toolbar-hint {
+  background-color: #f8f9fa;
+}
+
+[data-theme="light"] .editor-toolbar-hint code {
+  background-color: #e9ecef;
+}
+
+[data-theme="light"] .image-upload-panel,
+[data-theme="light"] .uploaded-images-list {
+  background-color: #f8f9fa;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .btn--secondary {
+  background-color: white;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .btn--secondary:hover {
+  background-color: #f8f9fa;
+}
+
+[data-theme="light"] .btn--ghost:hover {
+  background-color: #f8f9fa;
+}
+
+[data-theme="light"] .EasyMDEContainer .CodeMirror {
+  background-color: white !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .EasyMDEContainer .editor-toolbar {
+  background-color: #f8f9fa !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .EasyMDEContainer .editor-toolbar button:hover {
+  background-color: var(--color-primary) !important;
+}
+
+[data-theme="light"] .EasyMDEContainer .editor-preview {
+  background-color: white !important;
+}
+
+[data-theme="light"] .instructions-panel {
+  background-color: rgba(99, 102, 241, 0.05);
+}
+
+[data-theme="light"] .save-success-message {
+  background-color: rgba(16, 185, 129, 0.05);
+}
+
+[data-theme="light"] .save-success-message code {
+  background-color: #f8f9fa;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Set today's date as default
+  const dateInput = document.getElementById('post-date');
+  const today = new Date().toISOString().split('T')[0];
+  dateInput.value = today;
+  
+  // Initialize EasyMDE
+  const easyMDE = new EasyMDE({
+    element: document.getElementById('post-content'),
+    spellChecker: false,
+    autofocus: false,
+    placeholder: 'Treść wpisu...',
+    toolbar: [
+      'bold', 'italic', 'heading', '|',
+      'quote', 'unordered-list', 'ordered-list', '|',
+      'link', 'image', 'code', 'table', '|',
+      'preview', 'side-by-side', 'fullscreen', '|',
+      'guide'
+    ],
+    shortcuts: {
+      'togglePreview': 'Cmd-P'
+    },
+    status: ['lines', 'words', 'cursor'],
+    minHeight: '400px',
+    renderingConfig: {
+      singleLineBreaks: false,
+      codeSyntaxHighlighting: true,
+    }
+  });
+  
+  // Store uploaded images
+  let uploadedImages = [];
+  let featuredImageFile = null;
+  
+  // Featured Image Upload
+  const featuredUploadArea = document.getElementById('featured-upload-area');
+  const featuredFileInput = document.getElementById('featured-file-input');
+  const featuredImageUrl = document.getElementById('featured-image-url');
+  const featuredImageAlt = document.getElementById('featured-image-alt');
+  const featuredPreview = document.getElementById('featured-image-preview');
+  const featuredPreviewImg = document.getElementById('featured-image-preview-img');
+  const featuredFilename = document.getElementById('featured-image-filename');
+  const removeFeaturedBtn = document.getElementById('remove-featured-image');
+  
+  // Drag & Drop for featured image
+  featuredUploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    featuredUploadArea.classList.add('drag-over');
+  });
+  
+  featuredUploadArea.addEventListener('dragleave', () => {
+    featuredUploadArea.classList.remove('drag-over');
+  });
+  
+  featuredUploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    featuredUploadArea.classList.remove('drag-over');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFeaturedFile(files[0]);
+    }
+  });
+  
+  featuredFileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      handleFeaturedFile(e.target.files[0]);
+    }
+  });
+  
+  function handleFeaturedFile(file) {
+    if (!file.type.startsWith('image/')) {
+      alert('Proszę wybrać plik obrazka (PNG, JPG, GIF, SVG)');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Plik jest za duży. Maksymalny rozmiar to 5MB.');
+      return;
+    }
+    
+    featuredImageFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      featuredPreviewImg.src = e.target.result;
+      featuredFilename.textContent = file.name;
+      featuredPreview.style.display = 'inline-flex';
+      featuredImageUrl.value = `/assets/images/${file.name}`;
+    };
+    reader.readAsDataURL(file);
+  }
+  
+  removeFeaturedBtn.addEventListener('click', function() {
+    featuredImageFile = null;
+    featuredImageUrl.value = '';
+    featuredImageAlt.value = '';
+    featuredPreview.style.display = 'none';
+    featuredPreviewImg.src = '';
+    featuredFilename.textContent = '';
+    featuredFileInput.value = '';
+  });
+  
+  // Content Images Upload
+  const contentUploadArea = document.getElementById('content-upload-area');
+  const contentFileInput = document.getElementById('content-file-input');
+  const uploadedImagesList = document.getElementById('uploaded-images-list');
+  const imagesGrid = document.getElementById('images-grid');
+  
+  contentUploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    contentUploadArea.classList.add('drag-over');
+  });
+  
+  contentUploadArea.addEventListener('dragleave', () => {
+    contentUploadArea.classList.remove('drag-over');
+  });
+  
+  contentUploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    contentUploadArea.classList.remove('drag-over');
+    handleContentFiles(e.dataTransfer.files);
+  });
+  
+  contentFileInput.addEventListener('change', (e) => {
+    handleContentFiles(e.target.files);
+  });
+  
+  function handleContentFiles(files) {
+    Array.from(files).forEach(file => {
+      if (!file.type.startsWith('image/')) return;
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`Plik ${file.name} jest za duży. Pominięto.`);
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageData = {
+          file: file,
+          name: file.name,
+          dataUrl: e.target.result,
+          url: `/assets/images/${file.name}`
+        };
+        uploadedImages.push(imageData);
+        renderUploadedImages();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  
+  function renderUploadedImages() {
+    if (uploadedImages.length === 0) {
+      uploadedImagesList.style.display = 'none';
+      return;
+    }
+    
+    uploadedImagesList.style.display = 'block';
+    imagesGrid.innerHTML = '';
+    
+    uploadedImages.forEach((img, index) => {
+      const item = document.createElement('div');
+      item.className = 'uploaded-image-item';
+      item.innerHTML = `
+        <img src="${img.dataUrl}" alt="${img.name}">
+        <div class="image-name">${img.name}</div>
+        <button type="button" class="image-remove" data-index="${index}" title="Usuń">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      `;
+      
+      item.addEventListener('click', (e) => {
+        if (!e.target.closest('.image-remove')) {
+          // Select image and fill URL
+          document.getElementById('insert-image-url').value = img.url;
+          document.querySelectorAll('.uploaded-image-item').forEach(el => el.classList.remove('selected'));
+          item.classList.add('selected');
+        }
+      });
+      
+      item.querySelector('.image-remove').addEventListener('click', (e) => {
+        e.stopPropagation();
+        uploadedImages.splice(index, 1);
+        renderUploadedImages();
+      });
+      
+      imagesGrid.appendChild(item);
+    });
+  }
+  
+  // Tabs
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+    });
+  });
+  
+  // Insert Image Button
+  document.getElementById('insert-image-btn').addEventListener('click', function() {
+    const url = document.getElementById('insert-image-url').value.trim();
+    const alt = document.getElementById('insert-image-alt').value.trim();
+    const title = document.getElementById('insert-image-title').value.trim();
+    const width = document.getElementById('insert-image-width').value.trim();
+    const align = document.getElementById('insert-image-align').value;
+    
+    if (!url || !alt) {
+      alert('Proszę podać URL obrazka i tekst alternatywny (alt).');
+      return;
+    }
+    
+    // Build markdown image syntax
+    let imageMarkdown = '';
+    
+    // Add alignment wrapper if specified
+    if (align) {
+      const alignClass = align === 'center' ? 'text-center' : `float-${align}`;
+      imageMarkdown += `<div class="${alignClass}">\n\n`;
+    }
+    
+    // Build image markdown
+    if (title) {
+      imageMarkdown += `![${alt}](${url} "${title}")`;
+    } else {
+      imageMarkdown += `![${alt}](${url})`;
+    }
+    
+    // Add width attribute if specified
+    if (width) {
+      imageMarkdown = imageMarkdown.replace(')', `){width="${width}px"}`);
+    }
+    
+    if (align) {
+      imageMarkdown += '\n\n</div>';
+    }
+    
+    // Insert at cursor position
+    const cm = easyMDE.codemirror;
+    const doc = cm.getDoc();
+    const cursor = doc.getCursor();
+    
+    doc.replaceRange('\n\n' + imageMarkdown + '\n\n', cursor);
+    
+    // Clear inputs
+    document.getElementById('insert-image-url').value = '';
+    document.getElementById('insert-image-alt').value = '';
+    document.getElementById('insert-image-title').value = '';
+    document.getElementById('insert-image-width').value = '';
+    document.getElementById('insert-image-align').value = '';
+    
+    // Show success
+    const btn = this;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      Wstawiono!
+    `;
+    btn.classList.add('is-success');
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+      btn.classList.remove('is-success');
+    }, 1500);
+  });
+  
+  // Generate Markdown function
+  function generateMarkdown() {
+    const title = document.getElementById('post-title').value.trim();
+    const date = document.getElementById('post-date').value;
+    const tagsInput = document.getElementById('post-tags').value.trim();
+    const description = document.getElementById('post-description').value.trim();
+    const content = easyMDE.value().trim();
+    const featuredImg = featuredImageUrl.value.trim();
+    const featuredImgAlt = featuredImageAlt.value.trim();
+    
+    if (!title || !date || !description || !content) {
+      alert('Proszę wypełnić wszystkie wymagane pola (oznaczone *).');
+      return null;
+    }
+    
+    // Process tags
+    const tags = tagsInput
+      ? tagsInput.split(',').map(t => t.trim()).filter(t => t).map(t => `  - ${t}`).join('\n')
+      : '';
+    
+    // Build frontmatter
+    let markdown = `---\n`;
+    markdown += `title: ${title}\n`;
+    markdown += `description: ${description}\n`;
+    markdown += `date: ${date}\n`;
+    if (tags) {
+      markdown += `tags:\n${tags}\n`;
+    }
+    if (featuredImg) {
+      markdown += `image: ${featuredImg}\n`;
+    }
+    markdown += `---\n\n`;
+    
+    // Add featured image at the top if exists
+    if (featuredImg) {
+      markdown += `![${featuredImgAlt || title}](${featuredImg})\n\n`;
+    }
+    
+    markdown += content;
+    
+    return { markdown, title, date };
+  }
+  
+  // Generate and Download
+  document.getElementById('generate-btn').addEventListener('click', function() {
+    const result = generateMarkdown();
+    if (!result) return;
+    
+    const { markdown, title, date } = result;
+    
+    // Generate slug
+    const slug = title
+      .toLowerCase()
+      .replace(/[ąäâàá]/g, 'a')
+      .replace(/[ćčç]/g, 'c')
+      .replace(/[ęèéêë]/g, 'e')
+      .replace(/[ł]/g, 'l')
+      .replace(/[ńñ]/g, 'n')
+      .replace(/[óôòö]/g, 'o')
+      .replace(/[śš]/g, 's')
+      .replace(/[źżž]/g, 'z')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .substring(0, 50);
+    
+    // Show output
+    document.getElementById('output-content').textContent = markdown;
+    document.getElementById('output-section').style.display = 'block';
+    document.getElementById('instructions-panel').style.display = 'block';
+    
+    // Download file
+    const blob = new Blob([markdown], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${date}-${slug}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+  
+  // Download ZIP with images
+  document.getElementById('download-zip-btn').addEventListener('click', async function() {
+    const result = generateMarkdown();
+    if (!result) return;
+    
+    const { markdown, title, date } = result;
+    
+    // Generate slug
+    const slug = title
+      .toLowerCase()
+      .replace(/[ąäâàá]/g, 'a')
+      .replace(/[ćčç]/g, 'c')
+      .replace(/[ęèéêë]/g, 'e')
+      .replace(/[ł]/g, 'l')
+      .replace(/[ńñ]/g, 'n')
+      .replace(/[óôòö]/g, 'o')
+      .replace(/[śš]/g, 's')
+      .replace(/[źżž]/g, 'z')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .substring(0, 50);
+    
+    // Create ZIP
+    const zip = new JSZip();
+    
+    // Add markdown file
+    zip.file(`${date}-${slug}.md`, markdown);
+    
+    // Add images folder
+    const imagesFolder = zip.folder('images');
+    
+    // Add featured image if exists
+    if (featuredImageFile) {
+      imagesFolder.file(featuredImageFile.name, featuredImageFile);
+    }
+    
+    // Add content images
+    uploadedImages.forEach(img => {
+      imagesFolder.file(img.file.name, img.file);
+    });
+    
+    // Add README with instructions
+    const readme = `# Instrukcja instalacji
+
+## Pliki w tym archiwum:
+- \`${date}-${slug}.md\` - wpis na blog
+- \`images/\` - folder z obrazkami
+
+## Jak dodać wpis do bloga:
+
+1. Wypakuj zawartość ZIP
+2. Skopiuj plik \`.md\` do folderu \`src/posts/\`
+3. Skopiuj wszystkie obrazki z folderu \`images/\` do \`src/assets/images/\`
+4. Uruchom w terminalu: \`npm run build\`
+5. Wgraj zmiany na GitHub: \`git add . && git commit -m "Nowy wpis" && git push\`
+
+Gotowe! Wpis pojawi się na blogu po kilku minutach.`;
+    
+    zip.file('README.txt', readme);
+    
+    // Generate and download ZIP
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    const zipUrl = URL.createObjectURL(zipBlob);
+    const a = document.createElement('a');
+    a.href = zipUrl;
+    a.download = `${date}-${slug}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(zipUrl);
+    
+    // Show output and instructions
+    document.getElementById('output-content').textContent = markdown;
+    document.getElementById('output-section').style.display = 'block';
+    document.getElementById('instructions-panel').style.display = 'block';
+  });
+  
+  // Load MD file
+  document.getElementById('load-md-btn').addEventListener('click', function() {
+    document.getElementById('load-md-input').click();
+  });
+  
+  document.getElementById('load-md-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const content = event.target.result;
+      parseMarkdownFile(content, file.name);
+    };
+    reader.readAsText(file);
+  });
+  
+  function parseMarkdownFile(content, filename) {
+    // Parse frontmatter
+    const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+    
+    if (!frontmatterMatch) {
+      alert('Nie udało się sparsować pliku. Upewnij się, że ma poprawny format frontmatter (---).');
+      return;
+    }
+    
+    const frontmatter = frontmatterMatch[1];
+    const bodyContent = frontmatterMatch[2].trim();
+    
+    // Parse frontmatter fields
+    const titleMatch = frontmatter.match(/title:\s*(.+)/);
+    const dateMatch = frontmatter.match(/date:\s*(\d{4}-\d{2}-\d{2})/);
+    const descriptionMatch = frontmatter.match(/description:\s*(.+)/);
+    const tagsMatch = frontmatter.match(/tags:\n((?:\s+-\s*.+\n?)+)/);
+    const imageMatch = frontmatter.match(/image:\s*(.+)/);
+    
+    // Fill form fields
+    if (titleMatch) {
+      document.getElementById('post-title').value = titleMatch[1].trim();
+    }
+    
+    if (dateMatch) {
+      document.getElementById('post-date').value = dateMatch[1].trim();
+    }
+    
+    if (descriptionMatch) {
+      document.getElementById('post-description').value = descriptionMatch[1].trim();
+    }
+    
+    if (tagsMatch) {
+      const tags = tagsMatch[1].match(/-\s*(.+)/g);
+      if (tags) {
+        document.getElementById('post-tags').value = tags.map(t => t.replace(/^-\s*/, '').trim()).join(', ');
+      }
+    }
+    
+    // Handle featured image
+    if (imageMatch) {
+      const imgUrl = imageMatch[1].trim();
+      document.getElementById('featured-image-url').value = imgUrl;
+      
+      // Try to extract alt text from body if exists
+      const imgRegex = new RegExp(`!\\[(.*?)\\]\\(${imgUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\)`);
+      const imgInBody = bodyContent.match(imgRegex);
+      if (imgInBody) {
+        document.getElementById('featured-image-alt').value = imgInBody[1] || '';
+      }
+      
+      // Show preview if it's a URL
+      if (imgUrl.startsWith('http') || imgUrl.startsWith('/')) {
+        document.getElementById('featured-image-preview-img').src = imgUrl;
+        document.getElementById('featured-image-filename').textContent = imgUrl.split('/').pop();
+        document.getElementById('featured-image-preview').style.display = 'inline-flex';
+      }
+    }
+    
+    // Set content (remove featured image from top if present to avoid duplication)
+    let cleanContent = bodyContent;
+    if (imageMatch) {
+      const imgUrl = imageMatch[1].trim();
+      const imgRegex = new RegExp(`^!\\[.*?\\]\\(${imgUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\)\n\n`);
+      cleanContent = bodyContent.replace(imgRegex, '');
+    }
+    
+    easyMDE.value(cleanContent);
+    
+    // Show success message
+    const btn = document.getElementById('load-md-btn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      Wczytano!
+    `;
+    btn.classList.add('is-success');
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+      btn.classList.remove('is-success');
+    }, 2000);
+    
+    // Show instructions
+    document.getElementById('instructions-panel').style.display = 'block';
+    document.getElementById('instructions-panel').querySelector('.instructions-content').innerHTML = `
+      <p><strong>✓ Wczytano plik: ${filename}</strong></p>
+      <p>Sprawdź czy wszystkie pola są poprawnie wypełnione, a następnie:</p>
+      <ol>
+        <li>Edytuj treść w edytorze</li>
+        <li>Kliknij "Pobierz plik .md" lub "Pobierz ZIP"</li>
+        <li>Zastąp stary plik w projekcie nowym</li>
+      </ol>
+    `;
+  }
+  
+  // Copy to clipboard
+  document.getElementById('copy-btn').addEventListener('click', function() {
+    const result = generateMarkdown();
+    if (!result) return;
+    
+    navigator.clipboard.writeText(result.markdown).then(() => {
+      const btn = document.getElementById('copy-btn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        Skopiowano!
+      `;
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+      }, 2000);
+    });
+  });
+  
+  // Toggle preview
+  document.getElementById('toggle-preview').addEventListener('click', function() {
+    const previewSection = document.getElementById('preview-section');
+    const previewContent = document.getElementById('preview-content');
+    const content = easyMDE.value();
+    
+    if (previewSection.style.display === 'none') {
+      previewContent.innerHTML = easyMDE.markdown(content);
+      previewSection.style.display = 'block';
+      this.innerHTML = `
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        Ukryj podgląd
+      `;
+    } else {
+      previewSection.style.display = 'none';
+      this.innerHTML = `
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+        Podgląd
+      `;
+    }
+  });
+});
+</script>
