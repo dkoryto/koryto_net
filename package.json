@@ -20,7 +20,7 @@
   "bugs": {
     "url": "https://github.com/dkoryto/koryto_net/issues"
   },
-  "homepage": "https://github.com/dkoryto/koryto_net#readme",
+  "homepage": "https://koryto.net",
   "devDependencies": {
     "@11ty/eleventy": "^3.1.5"
   },

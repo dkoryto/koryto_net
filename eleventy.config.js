@@ -4,6 +4,7 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("src/assets/js");
   eleventyConfig.addPassthroughCopy("src/assets/images");
   eleventyConfig.addPassthroughCopy("src/favicon.ico");
+  eleventyConfig.addPassthroughCopy("src/CNAME");
 
   // Kolekcja postów na blogu
   eleventyConfig.addCollection("posts", function(collectionApi) {
@@ -249,6 +250,6 @@ const searchIndexData = ${JSON.stringify({ documents }, null, 2)};`;
     },
     templateFormats: ["md", "njk", "html"],
     markdownTemplateEngine: "njk",
-    pathPrefix: "/koryto_net/"
+    pathPrefix: "/"
   };
 };
