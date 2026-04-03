@@ -1,14 +1,16 @@
 // Service Worker dla koryto.net
 // Strategia: Cache First dla statycznych zasobów, Network First dla HTML
-// Cache TTL: 8 godzin
+// Cache TTL: 30 dni (długie przechowywanie dla wydajności mobilnej)
 
-const CACHE_VERSION = 'v2';
+// ZWIĘKSZ przy każdej aktualizacji strony - wymusi pobranie nowych zasobów
+const CACHE_BUILD_ID = '2026-04-03-v1';
+const CACHE_VERSION = `v3-${CACHE_BUILD_ID}`;
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const PAGES_CACHE = `pages-${CACHE_VERSION}`;
 const IMAGES_CACHE = `images-${CACHE_VERSION}`;
 
-// Czas życia cache w milisekundach (8 godzin)
-const CACHE_MAX_AGE = 8 * 60 * 60 * 1000; // 28,800,000 ms
+// Czas życia cache w milisekundach (30 dni dla wersji mobilnej)
+const CACHE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 2,592,000,000 ms
 
 // Zasoby do pre-caching (krytyczne dla pierwszego ładowania)
 const PRECACHE_ASSETS = [
