@@ -152,10 +152,10 @@ test('Wpisy w /posts/ istnieją', () => {
 // 6. Testy zawartości plików
 console.log('\n🔍 Zawartość plików:');
 
-test('robots.txt zawiera Content-Signal', () => {
+test('robots.txt ma poprawną strukturę', () => {
   const content = readFile('robots.txt');
-  assert.ok(content.includes('Content-Signal: search=yes,ai-train=no'), 
-    'Brak dyrektywy Content-Signal w robots.txt');
+  assert.ok(content.includes('User-agent:'), 'Brak User-agent w robots.txt');
+  assert.ok(content.includes('Sitemap:'), 'Brak Sitemap w robots.txt');
 });
 
 test('llms.txt ma poprawną strukturę', () => {
