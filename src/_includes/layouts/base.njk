@@ -69,8 +69,11 @@
   <!-- RSS Feed -->
   <link rel="alternate" type="application/atom+xml" title="{{ site.title }} - RSS Feed" href="{{ '/feed.xml' | url }}">
   
-  <!-- Preload critical fonts -->
+  <!-- Preload all font variants (równoległe ładowanie, nie sekwencyjne) -->
   <link rel="preload" href="{{ '/assets/fonts/inter-latin-400-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin fetchpriority="high">
+  <link rel="preload" href="{{ '/assets/fonts/inter-latin-500-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ '/assets/fonts/inter-latin-600-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ '/assets/fonts/inter-latin-700-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin>
   
   <!-- Inline fonts CSS (eliminuje dodatkowe żądanie blokujące renderowanie) -->
   <style>

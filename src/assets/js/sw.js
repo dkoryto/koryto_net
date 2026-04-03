@@ -1,10 +1,14 @@
 // Service Worker dla koryto.net
 // Strategia: Cache First dla statycznych zasobów, Network First dla HTML
+// Cache TTL: 8 godzin
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const PAGES_CACHE = `pages-${CACHE_VERSION}`;
 const IMAGES_CACHE = `images-${CACHE_VERSION}`;
+
+// Czas życia cache w milisekundach (8 godzin)
+const CACHE_MAX_AGE = 8 * 60 * 60 * 1000; // 28,800,000 ms
 
 // Zasoby do pre-caching (krytyczne dla pierwszego ładowania)
 const PRECACHE_ASSETS = [
@@ -12,7 +16,6 @@ const PRECACHE_ASSETS = [
   '/blog/',
   '/o-mnie/',
   '/assets/css/main.css',
-  '/assets/css/fonts.css',
   '/assets/fonts/inter-latin-400-normal.woff2',
   '/assets/fonts/inter-latin-500-normal.woff2',
   '/assets/fonts/inter-latin-600-normal.woff2',
@@ -21,6 +24,29 @@ const PRECACHE_ASSETS = [
   '/assets/js/main.js',
   '/assets/images/favicon.svg'
 ];
+
+// Pomocnicza funkcja: sprawdź czy cache wygasł
+function isCacheExpired(cachedResponse) {
+  if (!cachedResponse) return true;
+  
+  const cachedTime = cachedResponse.headers.get('sw-cached-time');
+  if (!cachedTime) return true;
+  
+  const age = Date.now() - parseInt(cachedTime, 10);
+  return age > CACHE_MAX_AGE;
+}
+
+// Pomocnicza funkcja: dodaj timestamp do odpowiedzi
+function addCacheTimestamp(response) {
+  const headers = new Headers(response.headers);
+  headers.set('sw-cached-time', Date.now().toString());
+  
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: headers
+  });
+}
 
 // Instalacja - pre-cache krytycznych zasobów
 self.addEventListener('install', (event) => {
@@ -80,92 +106,117 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Strategia dla obrazków: Cache First, potem network z aktualizacją cache
+  // Strategia dla obrazków: Cache First z weryfikacją wieku (max 8h)
   if (isImage(request)) {
     event.respondWith(
       caches.open(IMAGES_CACHE).then(async (cache) => {
         const cached = await cache.match(request);
         
-        if (cached) {
-          // W tle odśwież z cache (stale-while-revalidate)
+        // Jeśli cache istnieje i nie wygasł - użyj go
+        if (cached && !isCacheExpired(cached)) {
+          // W tle odśwież (stale-while-revalidate)
           fetch(request).then((response) => {
             if (response.ok) {
-              cache.put(request, response.clone());
+              cache.put(request, addCacheTimestamp(response.clone()));
             }
           }).catch(() => {});
           
           return cached;
         }
         
-        // Jeśli nie ma w cache, pobierz i zapisz
-        const response = await fetch(request);
-        if (response.ok) {
-          cache.put(request, response.clone());
+        // Cache wygasł lub nie istnieje - pobierz z sieci
+        try {
+          const response = await fetch(request);
+          if (response.ok) {
+            cache.put(request, addCacheTimestamp(response.clone()));
+          }
+          return response;
+        } catch (error) {
+          // Brak sieci - zwróć wygasły cache jako fallback
+          if (cached) return cached;
+          throw error;
         }
-        return response;
       })
     );
     return;
   }
 
-  // Strategia dla statycznych zasobów (CSS, JS, fonty): Cache First
+  // Strategia dla statycznych zasobów (CSS, JS, fonty): Cache First z TTL
   if (isStaticAsset(request)) {
     event.respondWith(
       caches.open(STATIC_CACHE).then(async (cache) => {
         const cached = await cache.match(request);
         
-        if (cached) {
+        // Jeśli cache istnieje i nie wygasł - użyj go
+        if (cached && !isCacheExpired(cached)) {
           // W tle sprawdź czy nie ma nowszej wersji
           fetch(request).then((response) => {
             if (response.ok) {
-              cache.put(request, response.clone());
+              cache.put(request, addCacheTimestamp(response.clone()));
             }
           }).catch(() => {});
           
           return cached;
         }
         
-        const response = await fetch(request);
-        if (response.ok) {
-          cache.put(request, response.clone());
+        // Cache wygasł lub nie istnieje - pobierz z sieci
+        try {
+          const response = await fetch(request);
+          if (response.ok) {
+            cache.put(request, addCacheTimestamp(response.clone()));
+          }
+          return response;
+        } catch (error) {
+          // Brak sieci - zwróć wygasły cache jako fallback
+          if (cached) return cached;
+          throw error;
         }
-        return response;
       })
     );
     return;
   }
 
-  // Strategia dla stron HTML: Network First z fallbackiem do cache
+  // Strategia dla stron HTML: Network First z cache TTL
   if (isPage(request)) {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Zapisz w cache dla offline
-          const clone = response.clone();
-          caches.open(PAGES_CACHE).then((cache) => {
-            cache.put(request, clone);
-          });
-          return response;
-        })
-        .catch(async () => {
-          const cached = await caches.match(request);
+      caches.open(PAGES_CACHE).then(async (cache) => {
+        try {
+          // Najpierw spróbuj pobrać z sieci
+          const networkResponse = await fetch(request);
+          
+          if (networkResponse.ok) {
+            // Zapisz w cache z timestamp
+            cache.put(request, addCacheTimestamp(networkResponse.clone()));
+            return networkResponse;
+          }
+          
+          throw new Error('Network response not ok');
+        } catch (error) {
+          // Sieć niedostępna - spróbuj cache
+          const cached = await cache.match(request);
+          
           if (cached) {
+            // Zwróć cache nawet jeśli wygasł (lepsze niż błąd)
             return cached;
           }
+          
           // Fallback dla offline - strona główna
           if (request.mode === 'navigate') {
-            return caches.match('/');
+            const homeCache = await cache.match('/');
+            if (homeCache) return homeCache;
           }
-          throw new Error('Network error and no cache');
-        })
+          
+          throw error;
+        }
+      })
     );
     return;
   }
 
   // Domyślnie: sprawdź cache, potem network
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) {
+    caches.match(request).then(async (cached) => {
+      if (cached && !isCacheExpired(cached)) {
         return cached;
       }
       return fetch(request);
