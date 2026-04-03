@@ -79,8 +79,12 @@ test('main.css istnieje', () => {
   assert.ok(fileExists('assets/css/main.css'), 'Plik main.css nie istnieje');
 });
 
-test('fonts.css istnieje', () => {
-  assert.ok(fileExists('assets/css/fonts.css'), 'Plik fonts.css nie istnieje');
+test('fonts.css jest inline w HTML (nie osobny plik)', () => {
+  const content = readFile('index.html');
+  assert.ok(!content.includes('href="/assets/css/fonts.css"'), 
+    'fonts.css powinien być inline, nie osobnym plikiem');
+  assert.ok(content.includes('@font-face'), 
+    'Brak definicji @font-face inline w HTML');
 });
 
 test('Czcionki lokalne istnieją (400)', () => {
@@ -165,9 +169,9 @@ test('llms.txt ma poprawną strukturę', () => {
   assert.ok(content.includes('##'), 'llms.txt nie zawiera sekcji H2');
 });
 
-test('index.html używa lokalnych czcionek', () => {
+test('index.html używa lokalnych czcionek (inline)', () => {
   const content = readFile('index.html');
-  assert.ok(content.includes('/assets/css/fonts.css'), 'Brak lokalnego fonts.css');
+  assert.ok(content.includes('@font-face'), 'Brak inline @font-face');
   assert.ok(content.includes('/assets/fonts/inter-latin'), 'Brak preload lokalnych czcionek');
   assert.ok(!content.includes('fonts.googleapis.com'), 'Nadal używa Google Fonts');
 });
