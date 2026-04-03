@@ -1,0 +1,44 @@
+#!/bin/bash
+#
+# Git hook: pre-push
+# Uruchamia testy przed każdym push do repozytorium
+#
+# Instalacja:
+#   cp .github/hooks/pre-push .git/hooks/pre-push
+#   chmod +x .git/hooks/pre-push
+#
+
+echo "🔍 Pre-push hook: Budowanie i testowanie..."
+echo ""
+
+# Sprawdź czy node_modules istnieją
+if [ ! -d "node_modules" ]; then
+    echo "❌ Brak node_modules. Uruchom: npm install"
+    exit 1
+fi
+
+# Build
+echo "📦 Budowanie strony..."
+npm run build
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ Błąd podczas budowania!"
+    exit 1
+fi
+
+echo ""
+echo "🧪 Uruchamianie testów..."
+npm test
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ Testy nie przeszły!"
+    echo "   Napraw błędy przed push."
+    exit 1
+fi
+
+echo ""
+echo "✅ Wszystko OK! Push dozwolony."
+echo ""
+exit 0

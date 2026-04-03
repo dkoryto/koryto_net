@@ -69,17 +69,11 @@
   <!-- RSS Feed -->
   <link rel="alternate" type="application/atom+xml" title="{{ site.title }} - RSS Feed" href="{{ '/feed.xml' | url }}">
   
-  <!-- Preconnect and DNS Prefetch -->
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  
   <!-- Preload critical fonts -->
-  <link rel="preload" href="https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2" as="font" type="font/woff2" crossorigin fetchpriority="high">
+  <link rel="preload" href="{{ '/assets/fonts/inter-latin-400-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin fetchpriority="high">
   
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ '/assets/css/fonts.css' | url }}">
   
   <!-- Preload critical CSS -->
   <link rel="preload" href="{{ '/assets/css/main.css' | url }}" as="style" fetchpriority="high">

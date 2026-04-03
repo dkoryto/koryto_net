@@ -9,7 +9,8 @@
   --color-surface: #1a1a1e;
   --color-surface-elevated: #242429;
   --color-text: #e8e8ec;
-  --color-text-muted: #9ca3af;
+  --color-text-muted: #a8b0bc;
+  --color-text-secondary: #a8b0bc;
   --color-primary: #6366f1;
   --color-primary-light: #818cf8;
   --color-secondary: #22d3ee;
@@ -45,7 +46,8 @@
   --color-surface: #f8f9fa;
   --color-surface-elevated: #e9ecef;
   --color-text: #1a1a1e;
-  --color-text-muted: #6c757d;
+  --color-text-muted: #495057;
+  --color-text-secondary: #495057;
   --color-primary: #4f46e5;
   --color-primary-light: #6366f1;
 }
