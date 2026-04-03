@@ -311,6 +311,8 @@ button:focus-visible {
   border: none;
   cursor: pointer;
   padding: 0.5rem;
+  z-index: 101;
+  position: relative;
 }
 
 .hamburger {
@@ -338,6 +340,19 @@ button:focus-visible {
 
 .hamburger::after {
   top: 7px;
+}
+
+/* Hamburger animation when menu is open */
+.nav-toggle[aria-expanded="true"] .hamburger {
+  background-color: transparent;
+}
+
+.nav-toggle[aria-expanded="true"] .hamburger::before {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.nav-toggle[aria-expanded="true"] .hamburger::after {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 /* Main content */
@@ -1312,9 +1327,12 @@ a.post-card__tag:hover {
     padding: var(--space-lg);
     gap: var(--space-md);
     transform: translateX(100%);
-    transition: transform var(--transition-base);
+    transition: transform var(--transition-base), opacity var(--transition-base), visibility var(--transition-base);
     opacity: 0;
     visibility: hidden;
+    z-index: 99;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   
   .nav-menu.is-open {
@@ -1326,6 +1344,21 @@ a.post-card__tag:hover {
   .nav-menu a {
     font-size: 1.25rem;
     padding: var(--space-sm) 0;
+    display: block;
+    width: 100%;
+  }
+  
+  .nav-menu li {
+    width: 100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  [data-theme="light"] .nav-menu li {
+    border-bottom-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  .nav-menu li:last-child {
+    border-bottom: none;
   }
   
   .post-nav {
